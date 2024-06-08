@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TodoApp.Data;
+using TodoApp.Repositories;
+using TodoApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,12 @@ builder.Services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoL
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// IOC container
+builder.Services.AddScoped<ITodoRepository, TodoRepository>();
+builder.Services.AddScoped<ITodoService, TodoService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 

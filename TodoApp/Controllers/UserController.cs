@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoApp.Data;
 using TodoApp.Model;
+using TodoApp.Repositories;
+using TodoApp.Services;
 
 namespace TodoApp.Controllers
 {
@@ -10,34 +12,27 @@ namespace TodoApp.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly TodoContext _dbcontext;
-        public UserController(TodoContext dbcontext)
+        private readonly IUserService _userservice;
+        public UserController(IUserService userservice)
         {
-            _dbcontext = dbcontext;
+            _userservice = userservice;
         }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return await _dbcontext.Users.ToListAsync();
+            return Ok(await _userservice.GetUsers());
         }
+
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(AddUser adduser)
         {
-            var user = await _dbcontext.Users.FirstOrDefaultAsync(u=>u.Username == adduser.Username);
-            if(user != null)
-            {
-                return BadRequest("username already exists try a different one");   
-            }
-            string passwordhash = BCrypt.Net.BCrypt.HashPassword(adduser.Password);
             try
             {
-                var useradd = new User() { 
-                    Username = adduser.Username,
-                    Password = passwordhash
-                };
-                _dbcontext.Users.Add(useradd);
-                await _dbcontext.SaveChangesAsync();
-                return Ok();
+                return await _userservice.Register(adduser);
+            }
+            catch(UserNameAlreadyExists ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch(Exception ex)
             {
@@ -49,17 +44,11 @@ namespace TodoApp.Controllers
         {
             try
             {
-                var user = await _dbcontext.Users.FirstOrDefaultAsync(u => u.Username == adduser.Username);
-                if (user == null)
-                {
-                    return BadRequest("user not found");
-                }
-                bool verified = BCrypt.Net.BCrypt.Verify(adduser.Password, user.Password);
-                if (!verified)
-                {
-                    return Unauthorized("invalid password");
-                }
-                return Ok(user);
+               return await _userservice.Login(adduser);
+            }
+            catch(InvalidPasswordException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch(Exception ex)
             {

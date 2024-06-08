@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Drawing.Text;
 using TodoApp.Data;
 using TodoApp.Model;
+using TodoApp.Repositories;
+using TodoApp.Services;
 
 namespace TodoApp.Controllers
 {
@@ -11,33 +13,22 @@ namespace TodoApp.Controllers
     public class TodoController : Controller
     {
         // dependency injection
-        private readonly TodoContext _dbcontext;
-        public TodoController(TodoContext dbcontext)
+        private readonly ITodoService _todoservice;
+        public TodoController(ITodoService service)
         {
-            _dbcontext = dbcontext;
+            _todoservice = service;
         }
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Todo>>> GetAllTodos() // to get all the todos use IEnumerable<Todo> or the Ok // aysnc returns Task<T>
+        public async Task<ActionResult<IEnumerable<Todo>>> GetAllTodos()
         {
-            return await _dbcontext.Todos.ToListAsync();  // if we use async await is necessary 
+            return Ok(await _todoservice.GetAllTodos());
         }
         [HttpPost]
         public async Task<ActionResult<Todo>> PostTodo(AddTodo addtodo)
         {
             try
             {
-                var todo = new Todo()
-                {
-                    Name = addtodo.Name,
-                    IsComplete = addtodo.IsComplete,
-                };
-                if(todo == null)
-                {
-                    return BadRequest("Todo is null");
-                }
-                _dbcontext.Todos.Add(todo);
-                await _dbcontext.SaveChangesAsync();
-                return CreatedAtAction(nameof(GetTodo), new { id = todo.Id }, todo);
+                return await _todoservice.PostTodo(addtodo);
             }
             catch(Exception Ex)
             {
@@ -49,12 +40,11 @@ namespace TodoApp.Controllers
         {
             try
             {
-                var todo = await _dbcontext.Todos.FindAsync(id);
-                if (todo == null)
-                {
-                    return NotFound();
-                }
-                return todo;
+                return await _todoservice.GetTodo(id);
+            }
+            catch (NotFoundException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch(Exception Ex)
             {
@@ -62,19 +52,15 @@ namespace TodoApp.Controllers
             }
         }
         [HttpPut("{id:long}")]
-        public async Task<ActionResult<Todo>> UpdateTodo(long id, AddTodo todo)
+        public async Task<ActionResult<Todo>> UpdateTodo(long id, AddTodo addtodo)
         {
             try
             {
-                var getTodo = await _dbcontext.Todos.FindAsync(id);
-                if (getTodo != null)
-                {
-                    getTodo.Name = todo.Name;
-                    getTodo.IsComplete = todo.IsComplete;
-                    await _dbcontext.SaveChangesAsync();
-                    return getTodo;
-                }
-                return NotFound();
+                return await _todoservice.UpdateTodo(id, addtodo);
+            }
+            catch(NotFoundException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (Exception Ex)
             {
@@ -86,14 +72,7 @@ namespace TodoApp.Controllers
         {
             try
             {
-                var getTodo = await _dbcontext.Todos.FindAsync(id);
-                if (getTodo == null)
-                {
-                    return NotFound();
-                }
-                _dbcontext.Todos.Remove(getTodo);
-                await _dbcontext.SaveChangesAsync();
-                return Ok();
+                return await _todoservice.DeleteTodo(id);
             }
             catch (Exception Ex)
             {
