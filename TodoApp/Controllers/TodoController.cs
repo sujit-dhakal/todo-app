@@ -26,6 +26,10 @@ namespace TodoApp.Controllers
         [HttpPost]
         public async Task<ActionResult<Todo>> PostTodo(AddTodo addtodo)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); // validation error 
+            }
             try
             {
                 return await _todoservice.PostTodo(addtodo);
@@ -54,6 +58,10 @@ namespace TodoApp.Controllers
         [HttpPut("{id:long}")]
         public async Task<ActionResult<Todo>> UpdateTodo(long id, AddTodo addtodo)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); // validation error
+            }
             try
             {
                 return await _todoservice.UpdateTodo(id, addtodo);
