@@ -26,6 +26,10 @@ namespace TodoApp.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(AddUser adduser)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);  // validation error
+            }
             try
             {
                 return await _userservice.Register(adduser);
