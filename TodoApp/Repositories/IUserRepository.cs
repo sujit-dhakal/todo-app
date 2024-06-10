@@ -7,6 +7,7 @@ namespace TodoApp.Repositories
     {
         Task<IEnumerable<User>> GetUsers();
         Task<User>Register(AddUser adduser);
-        Task<User> Login(AddUser adduser);
+        Task<TokenResponse> Login(AddUser adduser);
+        Task<TokenResponse> RefreshAccessToken(string refreshToken);
     }
 }

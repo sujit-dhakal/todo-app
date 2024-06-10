@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using TodoApp.Data;
 using TodoApp.Model;
 using TodoApp.Repositories;
@@ -44,7 +48,7 @@ namespace TodoApp.Controllers
             }
         }
         [HttpPost("login")]
-        public async Task<ActionResult<User>> Login(AddUser adduser)
+        public async Task<ActionResult<TokenResponse>> Login(AddUser adduser)
         {
             try
             {
@@ -55,6 +59,22 @@ namespace TodoApp.Controllers
                 return BadRequest(ex.Message);
             }
             catch(Exception)
+            {
+                throw;
+            }
+        }
+        [HttpPost("refresh-access-token")]
+        public async Task<ActionResult<TokenResponse>> RefreshAccessToken(string refreshToken)
+        {
+            try
+            {
+                return await _userservice.RefreshAccessToken(refreshToken);
+            }
+            catch(NotFoundException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception)
             {
                 throw;
             }
