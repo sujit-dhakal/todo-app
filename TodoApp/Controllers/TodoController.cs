@@ -30,14 +30,7 @@ namespace TodoApp.Controllers
             {
                 return BadRequest(ModelState); // validation error 
             }
-            try
-            {
-                return await _todoservice.PostTodo(addtodo);
-            }
-            catch(Exception Ex)
-            {
-                return StatusCode(500, Ex.Message);
-            }
+            return await _todoservice.PostTodo(addtodo);
         }
         [HttpGet("{id:long}")]
         public async Task<ActionResult<Todo>> GetTodo(long id)
@@ -50,9 +43,9 @@ namespace TodoApp.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            catch(Exception Ex)
+            catch(Exception)
             {
-                return StatusCode(500, Ex.Message);
+                throw; 
             }
         }
         [HttpPut("{id:long}")]
@@ -70,9 +63,9 @@ namespace TodoApp.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            catch (Exception Ex)
+            catch (Exception)
             {
-                return StatusCode(500, Ex.Message);
+                throw;
             }
         }
         [HttpDelete("{id:long}")]
@@ -82,9 +75,13 @@ namespace TodoApp.Controllers
             {
                 return await _todoservice.DeleteTodo(id);
             }
-            catch (Exception Ex)
+            catch(NotFoundException ex)
             {
-                return StatusCode(500, Ex.Message);
+                return BadRequest(ex.Message);
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
 

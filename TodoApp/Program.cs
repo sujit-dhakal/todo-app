@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TodoApp.CustomMiddleWare;
 using TodoApp.Data;
 using TodoApp.Repositories;
 using TodoApp.Services;
@@ -30,6 +31,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// middleware for 500 error
+app.UseErrorHandlingMiddleware();
 
 app.UseHttpsRedirection();
 
