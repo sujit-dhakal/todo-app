@@ -38,9 +38,9 @@ namespace TodoApp.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            catch(Exception ex)
+            catch(Exception)
             {
-                return StatusCode(500,ex.Message);
+                throw;
             }
         }
         [HttpPost("login")]
@@ -54,9 +54,9 @@ namespace TodoApp.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            catch(Exception ex)
+            catch(Exception)
             {
-                return StatusCode(500, ex.Message);
+                throw;
             }
         }
     }
