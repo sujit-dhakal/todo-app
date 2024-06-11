@@ -11,10 +11,10 @@ namespace TodoApp.Services
         }
         public async Task<IEnumerable<User>> GetUsers() => await _userRepository.GetUsers();
 
-        public async Task<TokenResponse> Login(AddUser adduser) => await _userRepository.Login(adduser);
+        public async Task<TokenResponse> Login(LoginUser loginuser) => await _userRepository.Login(loginuser);
 
         public async Task<User> Register(AddUser adduser) => await _userRepository.Register(adduser);
-        public async Task<TokenResponse> RefreshAccessToken(string refreshToken) 
-            => await _userRepository.RefreshAccessToken(refreshToken);
+        public async Task<TokenResponse> RefreshAccessToken(long Id) 
+            => await _userRepository.RefreshAccessToken(Id);
     }
 }
