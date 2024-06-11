@@ -48,11 +48,11 @@ namespace TodoApp.Controllers
             }
         }
         [HttpPost("login")]
-        public async Task<ActionResult<TokenResponse>> Login(AddUser adduser)
+        public async Task<ActionResult<TokenResponse>> Login(LoginUser loginuser)
         {
             try
             {
-               return await _userservice.Login(adduser);
+               return await _userservice.Login(loginuser);
             }
             catch(InvalidPasswordException ex)
             {
@@ -64,11 +64,11 @@ namespace TodoApp.Controllers
             }
         }
         [HttpPost("refresh-access-token")]
-        public async Task<ActionResult<TokenResponse>> RefreshAccessToken(string refreshToken)
+        public async Task<ActionResult<TokenResponse>> RefreshAccessToken(long Id)
         {
             try
             {
-                return await _userservice.RefreshAccessToken(refreshToken);
+                return await _userservice.RefreshAccessToken(Id);
             }
             catch(NotFoundException ex)
             {

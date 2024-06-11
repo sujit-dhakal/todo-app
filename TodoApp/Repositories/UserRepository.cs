@@ -30,23 +30,29 @@ namespace TodoApp.Repositories
             {
                 throw new UserNameAlreadyExists("username already taken try a new one.");
             }
+            var getUserEmail = await _context.Users.FirstOrDefaultAsync(p=>p.Email == adduser.Email);
+            if(getUserEmail != null)
+            {
+                throw new UserEmailAlreadyExsits("Account with this email is already registered.");
+            }
             string passwordhash = BCrypt.Net.BCrypt.HashPassword(adduser.Password);
             var user = new User() { 
                 Username = adduser.Username,
+                Email = adduser.Email,
                 Password = passwordhash,
             };
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return user;
         }
-        public async Task<TokenResponse> Login(AddUser adduser)
+        public async Task<TokenResponse> Login(LoginUser loginuser)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == adduser.Username);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == loginuser.Email);
             if (user == null)
             {
                 throw new NotFoundException("user not found");
             }
-            bool verified = BCrypt.Net.BCrypt.Verify(adduser.Password, user.Password);
+            bool verified = BCrypt.Net.BCrypt.Verify(loginuser.Password, user.Password);
             if (!verified)
             {
                 throw new InvalidPasswordException("invalid password");
@@ -95,9 +101,9 @@ namespace TodoApp.Repositories
                 return Convert.ToBase64String(randomNumber);
             }
         }
-        public async Task<TokenResponse> RefreshAccessToken(string refreshToken)
+        public async Task<TokenResponse> RefreshAccessToken(long Id)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(p => p.RefreshToken == refreshToken);
+            var user = await _context.Users.FirstOrDefaultAsync(p => p.Id == Id);
             if(user == null)
             {
                 throw new NotFoundException("User not found");
@@ -106,7 +112,7 @@ namespace TodoApp.Repositories
             return new TokenResponse
             {
                 AccessToken = accessToken,
-                RefreshToken = refreshToken
+                RefreshToken = user.RefreshToken,
             };
         }
     }
