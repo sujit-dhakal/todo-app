@@ -1,9 +1,12 @@
+using dotenv.net;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TodoApp.CustomMiddleWare;
 using TodoApp.Data;
 using TodoApp.Repositories;
 using TodoApp.Services;
+
+DotEnv.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 

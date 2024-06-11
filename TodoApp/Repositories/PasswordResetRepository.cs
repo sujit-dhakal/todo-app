@@ -51,8 +51,11 @@ namespace TodoApp.Repositories
             };
             using ( var client = new MailKit.Net.Smtp.SmtpClient())
             {
-                await client.ConnectAsync("smtp.gmail.com", 587, false);
-                await client.AuthenticateAsync("sujitramdhakal59@gmail.com", "xftwxdexjhvamuwx");
+                await client.ConnectAsync(Environment.GetEnvironmentVariable("SMTP"),
+                    int.Parse(Environment.GetEnvironmentVariable("SMTP_PORT")),
+                    bool.Parse(Environment.GetEnvironmentVariable("SMTP_CONNECTION_MODE")));
+                await client.AuthenticateAsync(Environment.GetEnvironmentVariable("SENDER_MAIL"),
+                    Environment.GetEnvironmentVariable("APP_KEY"));
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);
             }
