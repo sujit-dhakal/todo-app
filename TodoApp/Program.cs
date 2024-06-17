@@ -11,6 +11,7 @@ DotEnv.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 var conn = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // Add services to the container.
@@ -32,6 +33,17 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
 builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "reactApp", configurePolicy: policyBuilder =>
+    {
+        policyBuilder.WithOrigins("http://localhost:5173");
+        policyBuilder.AllowAnyHeader();
+        policyBuilder.AllowAnyMethod();
+        policyBuilder.AllowCredentials();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -46,6 +58,7 @@ app.ApplyMigration();
 app.UseErrorHandlingMiddleware();
 
 //app.UseHttpsRedirection();
+app.UseCors("reactApp");
 
 app.UseAuthorization();
 
