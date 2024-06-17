@@ -12,7 +12,7 @@ namespace TodoApp.Repositories
         {
             _context = context;
         }
-        public async Task<IEnumerable<Todo>> GetAllTodos() => await _context.Todos.ToListAsync();
+        public async Task<IEnumerable<Todo>> GetAllTodos() => await _context.Todos.OrderBy(todo=>todo.Id).ToListAsync();
         public async Task<Todo> GetTodo(long id)
         {
             var todo = await _context.Todos.FindAsync(id);
