@@ -1,0 +1,56 @@
+#version of the compose file format: it is according to the docker-engine version 
+version: '3.4'
+
+# isolates the network traffic between containers : communication between the containers
+networks:
+# todoappnet is the network name
+  todoappnet:
+    driver: bridge #default network driver which is used to manage network traffic between containers
+
+# each service represents a container it describes how the container should be built,run and networked linked with other services
+services:
+
+  todoapp:
+  # image to use for container
+    image: docker.io/library/todoapp 
+    # custom name for container
+    container_name: todoapp
+    # specifies dependencies between services todoapp depends on todo_db
+    depends_on:
+      - "todo_db"
+    # port mapping between container and the host 8088 localhost and 80 container port
+    ports:
+      - "8088:80"
+    # instruction on how to build the docker image from docker file
+    build:
+        context: .
+        dockerfile: Dockerfile
+    # environment variables to be set inside the container
+    environment:
+    # pooling=true
+    # instead of creating database connection every time for each request connection is created once and resused
+    # when application starts it establishes connection , application keeps this connection open for reuse rather than 
+    # closing it immediately after use
+      - ConnectionStrings__DefaultConnection=User ID=postgres;Password=sujit@123;Server=todo_db;Port=5432;Database=Todoapp;Pooling=true;
+      - ASPNETCORE_URLS=http://+:80
+    networks:
+      - todoappnet
+
+  todo_db:
+    image: postgres:16
+    container_name: todo_db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=sujit@123 
+      - POSTGRES_DB=Todoapp
+    ports:
+      - "5432:5432"
+   # always restart the container if it stops
+    restart: always
+  # mounts the todo_data volume to var/.. inside the container for data presistence
+    volumes:
+      - todo_data:/var/lib/postgresql/data
+    networks:
+      - todoappnet
+volumes:
+  todo_data:
