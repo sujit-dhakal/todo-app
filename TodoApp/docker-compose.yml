@@ -18,6 +18,7 @@ services:
     # specifies dependencies between services todoapp depends on todo_db
     depends_on:
       - "todo_db"
+      - "rabbitMQ"
     # port mapping between container and the host 8088 localhost and 80 container port
     ports:
       - "8088:80"
@@ -35,6 +36,16 @@ services:
       - ASPNETCORE_URLS=http://+:80
     networks:
       - todoappnet
+    restart: always
+
+  rabbitMQ:
+    image: rabbitmq:3.13-management
+    ports:
+     - "15672:15672"
+     - "5672:5672"
+    networks:
+      - todoappnet
+    restart: always
 
   todo_db:
     image: postgres:16

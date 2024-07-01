@@ -1,9 +1,11 @@
 using dotenv.net;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Configuration;
 using TodoApp;
 using TodoApp.CustomMiddleWare;
 using TodoApp.Data;
+using TodoApp.Model;
 using TodoApp.Repositories;
 using TodoApp.Services;
 
@@ -11,8 +13,11 @@ DotEnv.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.Bind("SmtpSettings", new SmtpSettings());
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
 
 var conn = builder.Configuration.GetConnectionString("DefaultConnection");
+
 
 // Add services to the container.
 
@@ -32,6 +37,10 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
 builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IRabbitMQService, RabbitMQService>();
+
+builder.Services.AddHostedService<RabbitMQConsumerService>();
 
 builder.Services.AddCors(options =>
 {

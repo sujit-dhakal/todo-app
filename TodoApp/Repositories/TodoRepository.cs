@@ -2,15 +2,18 @@
 using Microsoft.EntityFrameworkCore;
 using TodoApp.Data;
 using TodoApp.Model;
+using TodoApp.Services;
 
 namespace TodoApp.Repositories
 {
     public class TodoRepository : ITodoRepository
     {
         private readonly TodoContext _context;
-        public TodoRepository(TodoContext context)
+        private readonly IRabbitMQService _rabbitmqService;
+        public TodoRepository(TodoContext context,IRabbitMQService rabbitmqservice)
         {
             _context = context;
+            _rabbitmqService = rabbitmqservice;
         }
         public async Task<IEnumerable<Todo>> GetAllTodos() => await _context.Todos.OrderBy(todo=>todo.Id).ToListAsync();
         public async Task<Todo> GetTodo(long id)
@@ -27,12 +30,13 @@ namespace TodoApp.Repositories
             var todo = new Todo()
             {
                 Name = addtodo.Name,
-                IsComplete = addtodo.IsComplete
+                IsComplete = addtodo.IsComplete,
+                CreatedAt = DateTime.UtcNow,
             };
             await _context.Todos.AddAsync(todo);
             await SaveChanges();
             return todo;
-        }
+    }
         public async Task<Todo> UpdateTodo(long id, AddTodo addtodo)
         {
             var gettodo = await GetTodo(id);
